@@ -603,5 +603,3 @@ function TaskPage() {
     </main>
   )
 }
-
-export default TaskPage

@@ -1,9 +1,10 @@
+from enum import IntEnum
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
 
 from pydantic import EmailStr
 from sqlalchemy import DateTime, func
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Enum, Field, Relationship, SQLModel
 
 
 def get_datetime_utc() -> datetime:
@@ -147,7 +148,10 @@ class Course(CourseBase, table=True):
         primary_key=True,
         sa_column_kwargs={"server_default": func.gen_random_uuid()}
     )
+
+    initial_id: str = Field(unique=True, index=True, min_length=0, max_length=255)
     task_types: list["TaskType"] = Relationship(back_populates="course")
+    lessons: list["Lesson"] = Relationship(back_populates="course")
 
     users: list["User"] = Relationship(
         back_populates="courses",
@@ -230,3 +234,25 @@ class TaskSubmission(SQLModel, table=True):
 
     task: "Task" = Relationship(back_populates="submissions")
     file: "File" = Relationship()
+
+class WeekEnum(IntEnum):
+    WEEK_1 = 1
+    WEEK_2 = 2
+
+class LessonBase(SQLModel):
+    name: str
+    description: str | None = None
+    week: WeekEnum = Field()
+    lesson_number: int = Field()
+    time_start: time | None = Field(default=None)
+    time_end: time | None = Field(default=None)
+    course_id: uuid.UUID = Field(foreign_key="course.id")
+
+class Lesson(LessonBase, table=True):
+    id: uuid.UUID = Field(
+        default_factory=uuid.uuid4,
+        primary_key=True,
+        sa_column_kwargs={"server_default": func.gen_random_uuid()}
+    )
+
+    course: "Course" = Relationship(back_populates="lessons")

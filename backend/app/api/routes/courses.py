@@ -15,6 +15,7 @@ from app.models import (
     Course,
     TaskType,
     Task,
+    UserCourseLink,
 )
 
 from app.core.db import engine
@@ -119,6 +120,23 @@ def get_task_types(
         ).all()
 
         return task_types
+
+
+@router.get("/me")
+def get_my_courses(
+    current_user: deps.CurrentUser,
+    session=Depends(
+        deps.get_db,
+    ),
+):
+
+    courses = session.exec(
+        select(Course)
+        .join(UserCourseLink)
+        .where(UserCourseLink.user_id == current_user.id)
+    ).all()
+
+    return courses
 
 
 @router.get("/{course_id}")

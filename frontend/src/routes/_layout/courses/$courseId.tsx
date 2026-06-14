@@ -227,5 +227,3 @@ function CoursesPage() {
     </main>
   )
 }
-
-export default CoursesPage
