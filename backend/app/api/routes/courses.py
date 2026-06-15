@@ -8,7 +8,10 @@ from sqlmodel import (
     Session,
     select,
 )
-
+from app.services.vns.create_session import (
+    save_session,)
+from app.services.vns.service import (
+    sync_courses_from_vns,)
 from app.api import deps
 
 from app.models import (
@@ -36,6 +39,18 @@ def get_courses():
         ).all()
 
         return courses
+
+@router.post("/vns-connect")
+def connect_vns():
+
+    save_session()
+    
+    sync_courses_from_vns()
+
+    return {
+        "message":
+            "Connected"
+    }
 
 
 @router.get("/tasks")
