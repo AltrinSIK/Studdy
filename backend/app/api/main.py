@@ -11,7 +11,7 @@ from app.api.routes import (
     courses,
     terms,
     task,
-    shedule,
+    schedule,
 )
 from app.core.config import settings
 from app.api.routes import ai
@@ -24,7 +24,7 @@ api_router.include_router(items.router)
 api_router.include_router(users.router)
 api_router.include_router(task.router)
 api_router.include_router(courses.router)
-api_router.include_router(shedule.router)
+api_router.include_router(schedule.router)
 api_router.include_router(terms.router)
 api_router.include_router(ai.router, prefix="/ai", tags=["ai"])
 
