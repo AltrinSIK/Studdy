@@ -8,7 +8,6 @@ from pydantic import (
     BeforeValidator,
     EmailStr,
     HttpUrl,
-    PostgresDsn,
     computed_field,
     model_validator,
 )
@@ -58,10 +57,14 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = ""
 
     OPENROUTER_API_KEY: str | None = None
+    
+    DATABASE_URL: str | None = None
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def DATABASE_URL(self) -> str:
+    def SQLALCHEMY_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
         # Build connection string for PostgreSQL with psycopg3
         encoded_password = quote(self.POSTGRES_PASSWORD, safe="")
         db_url = f"postgresql+psycopg://{self.POSTGRES_USER}:{encoded_password}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
@@ -70,12 +73,7 @@ class Settings(BaseSettings):
             db_url += "?sslmode=require"
         return db_url
 
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def SQLALCHEMY_DATABASE_URI(self) -> str:
-        return self.DATABASE_URL
 
-    SMTP_TLS: bool = True
     SMTP_SSL: bool = False
     SMTP_PORT: int = 587
     SMTP_HOST: str | None = None
